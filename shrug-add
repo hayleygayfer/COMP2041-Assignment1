@@ -1,0 +1,32 @@
+#!/bin/dash
+
+if [ ! -d ".shrug" ]
+then    
+    echo "shrug-add: error: no .shrug directory containing shrug repository exists"
+    exit 1
+fi
+
+if [ ! -d ".shrug/index" ]
+then
+    mkdir "index"
+    mv "index" ".shrug"
+fi
+
+for file in $@
+do
+    if [ ! -e "$file" ]
+    then
+        if [ -e .shrug/index/$file ]
+        then
+            rm .shrug/index/$file
+        else
+            echo "shrug-add: error: can not open '$file'"
+        fi
+        continue
+    elif test "$file" != "^[a-zA-Z0-9][a-zA-Z0-9.-_]+$"
+    then
+        cp "$file" ".shrug/index"
+    else
+        echo "$file is an invalid file"
+    fi
+done

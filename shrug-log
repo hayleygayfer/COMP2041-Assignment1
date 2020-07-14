@@ -1,0 +1,10 @@
+#!/bin/dash
+
+set -- .shrug/*
+
+i=$(($#-2))
+while [ $i -ge 0 ]; do
+    echo -n "$i "
+    cat .shrug/$i-commit/.message.txt
+    i=$(($i-1))
+done

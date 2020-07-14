@@ -1,0 +1,64 @@
+#!/bin/dash
+
+i=0
+while [ -d ".shrug/$i-commit" ]
+do 
+    i=$(($i + 1))
+done 
+i=$(($i - 1))
+
+force=0
+cached=0
+for file in $@
+do
+    if [ "$file" = "--force" ]
+    then
+        force=1
+        continue
+    fi
+
+    if [ "$file" = "--cached" ]
+    then    
+        cached=1
+        continue
+    fi
+
+    if [ ! -e ".shrug/index/$file" ]
+    then
+        echo "shrug-rm: error: '$file' is not in the shrug repository"
+        exit 1
+    fi
+
+    if [ $force -eq 0 ]
+    then
+        cmp -s .shrug/index/$file .shrug/$i-commit/$file
+        index_commit=$?
+        cmp -s $file .shrug/index/$file
+        repo_index=$?
+        cmp -s $file .shrug/$i-commit/$file
+        repo_commit=$?
+        if [ $repo_index -ne 0 ] && [ $index_commit -ne 0 ]
+        then    
+            echo "shrug-rm: error: '$file' in index is different to both working file and repository"
+            exit 1
+        elif [ $index_commit -ne 0 ] && [ $cached -eq 0 ]
+        then
+            echo "shrug-rm: error: '$file' has changes staged in the index"
+            exit 1
+        elif [ $repo_commit -ne 0 ] && [ $cached -eq 0 ]
+        then
+            echo "shrug-rm: error: '$file' in repository is different to working file"
+            exit 1
+        fi
+    fi
+
+    rm ".shrug/index/$file"
+
+    if [ -e "$file" ]
+    then 
+        if [ $cached -eq 0 ]
+        then
+            rm "$file"
+        fi
+    fi
+done

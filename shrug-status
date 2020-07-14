@@ -1,0 +1,131 @@
+#!/bin/dash
+
+if [ ! -d ".shrug/0-commit" ]
+then
+    echo "shrug-status: error: your repository does not have any commits yet"
+    return 1
+fi
+
+i=0
+while [ -d ".shrug/$i-commit" ]
+do 
+    i=$(($i + 1))
+done 
+i=$(($i - 1))
+
+touch .file_list.txt
+for file in .shrug/$i-commit/*
+do
+    if [ "$file" != ".shrug/$i-commit/message.txt" ]
+    then
+        newfile=$(echo $file | sed -r "s/^.shrug\/$i-commit\///")
+        echo $newfile >> .file_list.txt
+    fi
+done
+
+for file in .shrug/index/*
+do
+    new_file=$(echo $file | sed -r "s/^.shrug\/index\///")
+    printf "$new_file\n" >> .file_list.txt
+done
+
+for file in *
+do
+    echo $file >> .file_list.txt
+done
+
+sort -u .file_list.txt > .sort_list.txt
+rm .file_list.txt
+
+while read -r file
+do
+    if [ "$file" = "*" ]
+    then    
+        continue
+    fi
+
+    echo -n "$file - "
+
+    # is file in the index
+    if [ -e ".shrug/index/$file" ] 
+    then
+        index=1
+    else 
+        index=0
+    fi
+
+    # is file in latest commit
+    if [ -e ".shrug/$i-commit/$file" ]
+    then
+        commit=1
+    else
+        commit=0
+    fi
+
+    if [ $index -eq 0 ]
+    then
+        if [ $commit -eq 1 ] && [ ! -e $file ]
+        then
+            echo "deleted"
+            continue
+        fi
+        echo "untracked"
+        continue
+    elif [ $commit -eq 1 ] && [ ! -e $file ]
+    then
+        if [ $index -ne 0 ]
+        then
+            echo "file deleted"
+            continue
+        fi
+    fi
+
+    cmp -s .shrug/index/$file .shrug/$i-commit/$file
+    index_commit=$?
+    cmp -s $file .shrug/index/$file
+    work_index=$?
+    cmp -s $file .shrug/$i-commit/$file
+    work_commit=$?  
+
+    if [ $index -eq 1 ] && [ $commit -eq 0 ]
+    then    
+        if [ $work_index -eq 0 ]
+        then
+            echo "added to index"
+            continue
+        elif [ ! -e $file ]
+        then
+            echo "added to index, file deleted"
+            continue
+        elif [ $work_index -ne 0 ]
+        then
+            echo "added to index, file changed"
+            continue
+        fi
+    elif [ $index -eq 1 ] && [ $commit -eq 1 ]
+    then   
+        if [ $work_commit -eq 0 ]
+        then
+            echo "same as repo"
+            continue
+        else
+            if [ $work_index -eq 0 ]
+            then
+                echo "file changed, changes staged for commit"
+                continue
+            else              
+                if [ $index_commit -ne 0 ] && [ $work_index -ne 0 ] && [ $work_commit -ne 0 ]
+                then
+                    echo "file changed, different changes staged for commit"
+                    continue
+                elif [ $work_commit -ne 0 ] && [ $index_commit -eq 0 ]
+                then
+                    echo "file changed, changes not staged for commit"
+                    continue
+                fi
+            fi
+        fi
+    fi
+done < .sort_list.txt
+
+rm .sort_list.txt
