@@ -1,5 +1,11 @@
 #!/bin/dash
 
+if ! echo $1 | grep -q ":"
+then
+    echo "shrug-show: error: invalid object $1"
+    exit 1
+fi
+
 sub=$(echo $1 | grep [0-9]:[a-zA-Z0-9_.-]*)
 
 if [ -z $sub ]

@@ -1,0 +1,10 @@
+Date	    Start	Stop	Activity	        Comments
+06/07/20	09:00	14:00	coding	            implemented shrug-init and shrug-add
+07/07/20	10:00	17:30	coding	            implemented shrug-commit, shrug-log and shrug-show
+09/07/20    12:00   15:00   debugging           added error checking to shrug-add and shrug-commit; non-existant file, no change etc
+10/07/20    08:00   14:30   coding              added -a functionality to shrug-commit, implemented basic functionality of shrug-rm
+11/07/20    09:30   17:00   coding & debugging  implemented --force and --cached, and added error checking for --cached to avoid losing work
+12/07/20    11:00   15:00   coding              implemented shrug-status functionality
+13/07/20    10:00   17:30   debugging           debugged errors in shrug-status, e.g. missing files (when deleted), wrong status for files
+14/07/20    09:00   16:00   debugging           ran over autotests, adding more error checking and debugging small issues (mainly with status)
+15/07/20    10:00   14:00   debugging           wrote additional tests for shrug, debugged some incorrect error handling

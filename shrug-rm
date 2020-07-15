@@ -7,6 +7,12 @@ do
 done 
 i=$(($i - 1))
 
+if [ $i -eq -1 ] 
+then   
+    echo "shrug-rm: error: your repository does not have any commits yet"
+    exit 1
+fi
+
 force=0
 cached=0
 for file in $@

@@ -4,13 +4,13 @@ index_path=".shrug/index"
 
 if [ ! -d ".shrug" ]
 then    
-    echo ".shrug does not exist"
+    echo "shrug-commit: error: no .shrug directory containing shrug repository exists"
     exit 1
 fi
 
 if [ ! -d "$index_path" ]
 then
-    echo "index does not exist"
+    echo "nothing to commit"
     exit 1
 fi
 
@@ -56,7 +56,7 @@ then
     for file in .shrug/$i-commit/*
     do
         new_file=$(echo $file | sed -r 's/^.shrug\/[0-9]+-commit\///')
-        if [ ! -e .shrug/index/$new_file ] && [ "$new_file" != "message.txt" ]
+        if [ ! -e ".shrug/index/$new_file" ] && [ "$new_file" != "message.txt" ]
         then
             difference=1
             continue
@@ -80,6 +80,8 @@ then
         if [ -f $filename ]
         then
             cp "$filename" "$file"
+        else
+            rm "$file"
         fi
     done
 fi
