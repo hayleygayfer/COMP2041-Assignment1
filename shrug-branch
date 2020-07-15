@@ -1,1 +1,56 @@
-empty
+#!/bin/dash
+
+. .shrug/path
+
+i=0
+while [ -d "$branch_path/$i-commit" ]
+do 
+    i=$(($i + 1))
+done 
+i=$(($i - 1))
+
+if [ $i -eq -1 ]
+then
+    echo "shrug-branch: error: your repository does not have any commits yet"
+    exit 1
+fi
+
+if [ $# -eq 0 ] 
+then
+    for file in .shrug/branch-*
+    do
+        filename=$(echo $file | sed -r 's/^.shrug\/branch\-//')
+        echo $filename
+    done
+    return 1
+fi
+
+if [ $# -eq 1 ]
+then
+    if [ ! -d ".shrug/branch-$1" ]
+    then
+        mkdir ".shrug/branch-$1"
+    else
+        echo "shrug-branch: error: branch '$1' already exists"
+    fi
+elif [ $# -eq 2 ] && [ "$1" = "-d" ]
+then    
+    if [ -d ".shrug/branch-$2" ] && [ ".shrug/branch-$2" != ".shrug/branch-master" ]
+    then
+        rm -r ".shrug/branch-$2"
+        echo "Deleted branch '$2'"
+    elif [ ".shrug/branch-$2" = ".shrug/branch-master" ]
+    then
+        echo "shrug-branch: error: can not delete branch 'master'"
+    else
+        echo "shrug-branch: error: branch '$2' does not exist"
+    fi
+else
+    echo "usage: shrug-checkout <branch>"
+fi
+
+
+
+
+
+

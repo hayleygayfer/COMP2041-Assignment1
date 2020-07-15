@@ -1,5 +1,7 @@
 #!/bin/dash
 
+. .shrug/path
+
 if ! echo $1 | grep -q ":"
 then
     echo "shrug-show: error: invalid object $1"
@@ -12,24 +14,24 @@ if [ -z $sub ]
 then
     file=$(echo $1 | sed -r 's/^://')
 
-    if [ ! -e .shrug/index/$file ]
+    if [ ! -e $branch_path/index/$file ]
     then
         echo "shrug-show: error: '$file' not found in index"
     else
-        cat .shrug/index/$file
+        cat $branch_path/index/$file
     fi
 else
     commit=$(echo $1 | sed -r 's/:[a-zA-Z0-9_.-]*//')
     file=$(echo $1 | sed -r 's/^[0-9]://')
 
-    if [ ! -d ".shrug/$commit-commit/" ]
+    if [ ! -d "$branch_path/$commit-commit/" ]
     then
         echo "shrug-show: error: unknown commit '$commit'"
-    elif [ ! -e .shrug/$commit-commit/$file ]
+    elif [ ! -e $branch_path/$commit-commit/$file ]
     then
         echo "shrug-show: error: '$file' not found in commit $commit"
     else
-        cat .shrug/$commit-commit/$file
+        cat $branch_path/$commit-commit/$file
     fi
 fi
 

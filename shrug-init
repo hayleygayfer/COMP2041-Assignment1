@@ -8,4 +8,16 @@ else
     echo "shrug-init: error: .shrug already exists"
 fi
 
+if [ ! -d ".shrug/branch-master" ]
+then
+    mkdir ".shrug/branch-master"
+fi
+
+touch path
+echo "#!/bin/sh" > path
+printf "\n" >> path
+echo "branch_path=\".shrug/branch-master\"" >> path
+
+mv "path" ".shrug"
+
 

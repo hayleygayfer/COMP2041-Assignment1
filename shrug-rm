@@ -1,7 +1,9 @@
 #!/bin/dash
 
+. .shrug/path
+
 i=0
-while [ -d ".shrug/$i-commit" ]
+while [ -d "$branch_path/$i-commit" ]
 do 
     i=$(($i + 1))
 done 
@@ -29,7 +31,7 @@ do
         continue
     fi
 
-    if [ ! -e ".shrug/index/$file" ]
+    if [ ! -e "$branch_path/index/$file" ]
     then
         echo "shrug-rm: error: '$file' is not in the shrug repository"
         exit 1
@@ -37,11 +39,11 @@ do
 
     if [ $force -eq 0 ]
     then
-        cmp -s .shrug/index/$file .shrug/$i-commit/$file
+        cmp -s $branch_path/index/$file $branch_path/$i-commit/$file
         index_commit=$?
-        cmp -s $file .shrug/index/$file
+        cmp -s $file $branch_path/index/$file
         repo_index=$?
-        cmp -s $file .shrug/$i-commit/$file
+        cmp -s $file $branch_path/$i-commit/$file
         repo_commit=$?
         if [ $repo_index -ne 0 ] && [ $index_commit -ne 0 ]
         then    
@@ -58,7 +60,7 @@ do
         fi
     fi
 
-    rm ".shrug/index/$file"
+    rm "$branch_path/index/$file"
 
     if [ -e "$file" ]
     then 

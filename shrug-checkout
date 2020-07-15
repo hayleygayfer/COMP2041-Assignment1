@@ -1,1 +1,21 @@
-empty
+#!/bin/dash
+
+. .shrug/path
+
+if [ $# -ne 1 ]
+then
+    echo "usage: shrug-checkout <branch>"
+    exit 1
+elif [ ! -d ".shrug/branch-$1" ] 
+then
+    echo "shrug-checkout: error: unknown branch '$1'"
+    exit 1
+elif [ ".shrug/branch-$1" = "$branch_path" ]
+then
+    echo "Already on '$1'"
+    exit 1
+fi
+
+sed -i "s/.shrug\/branch\-.*/.shrug\/branch-$1\"/" .shrug/path
+
+echo "Switched to branch '$1'"

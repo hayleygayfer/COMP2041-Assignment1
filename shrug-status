@@ -1,31 +1,33 @@
 #!/bin/dash
 
-if [ ! -d ".shrug/0-commit" ]
+. .shrug/path
+
+if [ ! -d "$branch_path/0-commit" ]
 then
     echo "shrug-status: error: your repository does not have any commits yet"
     return 1
 fi
 
 i=0
-while [ -d ".shrug/$i-commit" ]
+while [ -d "$branch_path/$i-commit" ]
 do 
     i=$(($i + 1))
 done 
 i=$(($i - 1))
 
 touch .file_list.txt
-for file in .shrug/$i-commit/*
+for file in $branch_path/$i-commit/*
 do
-    if [ "$file" != ".shrug/$i-commit/message.txt" ]
+    if [ "$file" != "$branch_path/$i-commit/message.txt" ]
     then
-        newfile=$(echo $file | sed -r "s/^.shrug\/$i-commit\///")
+        newfile=$(echo $file | sed -r "s|^$branch_path/$i-commit/||")
         echo $newfile >> .file_list.txt
     fi
 done
 
-for file in .shrug/index/*
+for file in $branch_path/index/*
 do
-    new_file=$(echo $file | sed -r "s/^.shrug\/index\///")
+    new_file=$(echo $file | sed -r "s|^$branch_path/index/||")
     printf "$new_file\n" >> .file_list.txt
 done
 
@@ -47,7 +49,7 @@ do
     echo -n "$file - "
 
     # is file in the index
-    if [ -e ".shrug/index/$file" ] 
+    if [ -e "$branch_path/index/$file" ] 
     then
         index=1
     else 
@@ -55,7 +57,7 @@ do
     fi
 
     # is file in latest commit
-    if [ -e ".shrug/$i-commit/$file" ]
+    if [ -e "$branch_path/$i-commit/$file" ]
     then
         commit=1
     else
@@ -80,11 +82,11 @@ do
         fi
     fi
 
-    cmp -s .shrug/index/$file .shrug/$i-commit/$file
+    cmp -s $branch_path/index/$file $branch_path/$i-commit/$file
     index_commit=$?
-    cmp -s $file .shrug/index/$file
+    cmp -s $file $branch_path/index/$file
     work_index=$?
-    cmp -s $file .shrug/$i-commit/$file
+    cmp -s $file $branch_path/$i-commit/$file
     work_commit=$?  
 
     if [ $index -eq 1 ] && [ $commit -eq 0 ]

@@ -6,26 +6,28 @@ then
     exit 1
 fi
 
-if [ ! -d ".shrug/index" ]
+. .shrug/path
+
+if [ ! -d "$branch_path/index" ]
 then
     mkdir "index"
-    mv "index" ".shrug"
+    mv "index" "$branch_path"
 fi
 
 for file in $@
 do
     if [ ! -e "$file" ]
     then
-        if [ -e .shrug/index/$file ]
+        if [ -e $branch_path/index/$file ]
         then
-            rm .shrug/index/$file
+            rm $branch_path/index/$file
         else
             echo "shrug-add: error: can not open '$file'"
         fi
         continue
     elif test "$file" != "^[a-zA-Z0-9][a-zA-Z0-9.-_]+$"
     then
-        cp "$file" ".shrug/index"
+        cp "$file" "$branch_path/index"
     else
         echo "$file is an invalid file"
     fi

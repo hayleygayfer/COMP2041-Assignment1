@@ -1,49 +1,52 @@
 #!/bin/dash
 
-index_path=".shrug/index"
-
 if [ ! -d ".shrug" ]
 then    
     echo "shrug-commit: error: no .shrug directory containing shrug repository exists"
     exit 1
 fi
 
-if [ ! -d "$index_path" ]
+. .shrug/path
+
+if [ ! -d "$branch_path/index" ]
 then
     echo "nothing to commit"
     exit 1
 fi
 
 i=0
-while [ -d ".shrug/$i-commit" ]
-do 
-    i=$(($i + 1))
-done 
+for file in .shrug/*
+do
+    while [ -d "$file/$i-commit" ]
+    do 
+        i=$(($i + 1))
+    done 
+done
 
 if [ $i -ne 0 ] && [ "$1" != "-a" ]
 then
     i=$(($i - 1))
 
     difference=0
-    if [ -z "$(ls .shrug/index)" ] && [ -z "$(ls .shrug/$i-commit)" ]
+    if [ -z "$(ls $branch_path/index)" ] && [ -z "$(ls $branch_path/$i-commit)" ]
     then
         echo "nothing to commit"
         exit 1
-    elif [ -z "$(ls .shrug/index)" ] 
+    elif [ -z "$(ls $branch_path/index)" ] 
     then
         difference=1
         continue
     fi
 
-    for file in .shrug/index/*
+    for file in $branch_path/index/*
     do
-        new_file=$(echo $file | sed -r 's/^.shrug\/index\///')
-        if [ ! -f ".shrug/$i-commit/$new_file" ]
+        new_file=$(echo $file | sed -r "s|^$branch_path/index/||")
+        if [ ! -f "$branch_path/$i-commit/$new_file" ]
         then
             difference=1
             continue
         else
-            cmp -s ".shrug/index/$new_file" ".shrug/$i-commit/$new_file"
+            cmp -s "$branch_path/index/$new_file" "$branch_path/$i-commit/$new_file"
             index_commit=$?
             if [ $index_commit -ne 0 ]
             then
@@ -53,10 +56,10 @@ then
         fi
     done
 
-    for file in .shrug/$i-commit/*
+    for file in $branch_path/$i-commit/*
     do
-        new_file=$(echo $file | sed -r 's/^.shrug\/[0-9]+-commit\///')
-        if [ ! -e ".shrug/index/$new_file" ] && [ "$new_file" != "message.txt" ]
+        new_file=$(echo $file | sed -r "s|^$branch_path/[0-9]+-commit/||")
+        if [ ! -e "$branch_path/index/$new_file" ] && [ "$new_file" != "message.txt" ]
         then
             difference=1
             continue
@@ -74,9 +77,9 @@ fi
 # -a option
 if [ "$1" = "-a" ]
 then
-    for file in .shrug/index/*
+    for file in $branch_path/index/*
     do
-        filename=$(echo $file | sed -r 's/^.shrug\/index\///')
+        filename=$(echo $file | sed -r "s|^$branch_path/index/||")
         if [ -f $filename ]
         then
             cp "$filename" "$file"
@@ -95,24 +98,21 @@ done
 
 echo "$message" | sed -r 's/^(-a)? -m//' | sed -r 's/^ *//g' > ".message.txt"
 
-mkdir ".shrug/$i-commit"
+mkdir "$branch_path/$i-commit"
 commit="$i-commit"
 
-mv ".message.txt" ".shrug/$commit"
+mv ".message.txt" "$branch_path/$commit"
 
 echo "Committed as commit $i"
 
-for file in .shrug/index/*
+for file in $branch_path/index/*
 do
     if [ ! -f $file ]
     then    
         continue
     fi
-    cp "$file" ".shrug/$commit"
+    cp "$file" "$branch_path/$commit"
 done
-
-
-echo -n "" > .shrug/.last_action.txt
 
 
 

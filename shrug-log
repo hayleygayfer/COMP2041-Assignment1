@@ -1,10 +1,12 @@
 #!/bin/dash
 
-set -- .shrug/*
+. .shrug/path
+
+set -- $branch_path/*
 
 i=$(($#-2))
 while [ $i -ge 0 ]; do
     echo -n "$i "
-    cat .shrug/$i-commit/.message.txt
+    cat $branch_path/$i-commit/.message.txt
     i=$(($i-1))
 done
